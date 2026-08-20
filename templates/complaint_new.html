@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Complaint — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="app-body">
+
+  {% include 'partials/_sidebar_user.html' %}
+
+  <main class="app-main">
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-right">
+        <div class="user-avatar-small">{{ session.user_name[0].upper() }}</div>
+        <span class="topbar-name">{{ session.user_name }}</span>
+      </div>
+    </header>
+
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+          <div class="alert alert-{{ category }}"><i class="fas fa-info-circle"></i> {{ message|safe }}</div>
+        {% endfor %}{% endif %}
+      {% endwith %}
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title"><i class="fas fa-plus-circle"></i> Submit New Complaint</h1>
+          <p class="page-subtitle">Describe your issue — our AI will analyze and prioritize it automatically</p>
+        </div>
+      </div>
+
+      <div class="complaint-form-layout">
+        <!-- Form -->
+        <div class="card form-card">
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('complaint_new') }}" id="complaintForm" novalidate>
+
+              <div class="form-group">
+                <label for="title"><i class="fas fa-heading"></i> Complaint Title <span class="required">*</span></label>
+                <input type="text" id="title" name="title" placeholder="Brief, clear title (e.g. Gas leakage near park)"
+                       required minlength="5" maxlength="150"
+                       value="{{ request.form.title or '' }}" oninput="triggerAnalysis()"/>
+                <small class="char-count" id="titleCount">0 / 150</small>
+                <span class="field-error" id="titleError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="category"><i class="fas fa-tag"></i> Category <span class="required">*</span></label>
+                <select id="category" name="category" required onchange="triggerAnalysis()">
+                  <option value="">— Select a Category —</option>
+                  {% for cat in categories %}
+                    <option value="{{ cat }}" {{ 'selected' if request.form.category == cat }}>{{ cat }}</option>
+                  {% endfor %}
+                </select>
+                <span class="field-error" id="catError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="description"><i class="fas fa-align-left"></i> Complaint Description <span class="required">*</span></label>
+                <textarea id="description" name="description" rows="6"
+                          placeholder="Describe the problem in detail. Include location, severity, how long it has been occurring, and any safety risks..."
+                          required minlength="20" maxlength="2000"
+                          oninput="triggerAnalysis()">{{ request.form.description or '' }}</textarea>
+                <small class="char-count" id="descCount">0 / 2000</small>
+                <span class="field-error" id="descError"></span>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary btn-lg" id="submitBtn">
+                  <i class="fas fa-paper-plane"></i> Submit Complaint
+                </button>
+                <a href="{{ url_for('dashboard') }}" class="btn-outline btn-lg">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- AI Preview Panel -->
+        <div class="ai-preview-panel">
+          <div class="card ai-card">
+            <div class="card-header">
+              <h3><i class="fas fa-robot"></i> AI Priority Preview</h3>
+              <span class="live-badge" id="liveBadge"><i class="fas fa-circle"></i> Live</span>
+            </div>
+            <div class="card-body">
+              <div id="aiResult" class="ai-result-placeholder">
+                <i class="fas fa-keyboard"></i>
+                <p>Start typing your complaint to see AI analysis...</p>
+              </div>
+              <div id="aiResultContent" style="display:none">
+                <div class="ai-priority-display">
+                  <div class="ai-priority-label">Priority Level</div>
+                  <div class="ai-priority-badge" id="aiPriority">—</div>
+                </div>
+                <div class="ai-score-display">
+                  <div class="ai-score-label">Priority Score</div>
+                  <div class="ai-score-bar-wrap">
+                    <div class="ai-score-bar"><div class="ai-score-fill" id="aiScoreFill" style="width:0%"></div></div>
+                    <span id="aiScoreNum">0</span> / 100
+                  </div>
+                </div>
+                <div class="ai-category-display">
+                  <i class="fas fa-tag"></i>
+                  <span>Detected Category: <strong id="aiCategory">—</strong></span>
+                </div>
+                <div class="ai-tips" id="aiTips"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips Card -->
+          <div class="card tips-card">
+            <div class="card-header"><h3><i class="fas fa-lightbulb"></i> Tips for Better Results</h3></div>
+            <div class="card-body">
+              <ul class="tips-list">
+                <li><i class="fas fa-check"></i> Mention the specific location</li>
+                <li><i class="fas fa-check"></i> Include how long the issue has been occurring</li>
+                <li><i class="fas fa-check"></i> Mention any safety risks clearly</li>
+                <li><i class="fas fa-check"></i> Describe impact on public / residents</li>
+                <li><i class="fas fa-check"></i> Use clear, specific language</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

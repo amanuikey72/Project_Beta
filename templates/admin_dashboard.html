@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="app-body">
+
+  {% include 'partials/_sidebar_admin.html' %}
+
+  <main class="app-main">
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Admin Dashboard</div>
+      <div class="topbar-right">
+        <div class="user-avatar-small admin-av"><i class="fas fa-shield-alt"></i></div>
+        <span class="topbar-name">{{ session.user_name }}</span>
+      </div>
+    </header>
+
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+          <div class="alert alert-{{ category }}"><i class="fas fa-info-circle"></i> {{ message|safe }}</div>
+        {% endfor %}{% endif %}
+      {% endwith %}
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Admin Dashboard</h1>
+          <p class="page-subtitle">System overview and analytics</p>
+        </div>
+        <a href="{{ url_for('admin_complaints') }}" class="btn-primary">
+          <i class="fas fa-clipboard-list"></i> View All Complaints
+        </a>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid three-col">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.total }}</span>
+            <span class="stat-label">Total Complaints</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.pending }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple"><i class="fas fa-spinner"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.in_progress }}</span>
+            <span class="stat-label">In Progress</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.resolved }}</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-fire"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.critical }}</span>
+            <span class="stat-label">Critical</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.high }}</span>
+            <span class="stat-label">High Priority</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div id="analytics" class="charts-grid">
+        <!-- Priority Chart -->
+        <div class="card chart-card">
+          <div class="card-header"><h3><i class="fas fa-exclamation-circle"></i> Complaints by Priority</h3></div>
+          <div class="card-body chart-body">
+            <canvas id="priorityChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Status Chart -->
+        <div class="card chart-card">
+          <div class="card-header"><h3><i class="fas fa-tasks"></i> Complaints by Status</h3></div>
+          <div class="card-body chart-body">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Category Chart -->
+        <div class="card chart-card chart-wide">
+          <div class="card-header"><h3><i class="fas fa-tag"></i> Complaints by Category</h3></div>
+          <div class="card-body chart-body">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Monthly Chart -->
+        <div class="card chart-card chart-wide">
+          <div class="card-header"><h3><i class="fas fa-chart-line"></i> Monthly Trend</h3></div>
+          <div class="card-body chart-body">
+            <canvas id="monthlyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="quick-actions-grid">
+        <a href="{{ url_for('admin_complaints') }}" class="quick-action-card">
+          <i class="fas fa-clipboard-list"></i><span>All Complaints</span>
+        </a>
+        <a href="{{ url_for('admin_complaints') }}?priority=Critical" class="quick-action-card critical-qa">
+          <i class="fas fa-fire"></i><span>Critical</span>
+        </a>
+        <a href="{{ url_for('admin_complaints') }}?status=Pending" class="quick-action-card">
+          <i class="fas fa-clock"></i><span>Pending</span>
+        </a>
+        <a href="{{ url_for('admin_users') }}" class="quick-action-card">
+          <i class="fas fa-users"></i><span>Users</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Pass stats data from Flask to JavaScript
+    const statsData = {
+      byPriority : {{ stats.by_priority | tojson }},
+      byStatus   : {{ stats.by_status   | tojson }},
+      byCategory : {{ stats.by_category | tojson }},
+      monthly    : {
+        labels : {{ stats.monthly_labels | tojson }},
+        data   : {{ stats.monthly_data   | tojson }}
+      }
+    };
+  </script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

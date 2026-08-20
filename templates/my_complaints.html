@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Complaints — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="app-body">
+
+  {% include 'partials/_sidebar_user.html' %}
+
+  <main class="app-main">
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-right">
+        <div class="user-avatar-small">{{ session.user_name[0].upper() }}</div>
+        <span class="topbar-name">{{ session.user_name }}</span>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title"><i class="fas fa-list-alt"></i> My Complaints</h1>
+          <p class="page-subtitle">Track and manage all your submitted complaints</p>
+        </div>
+        <a href="{{ url_for('complaint_new') }}" class="btn-primary">
+          <i class="fas fa-plus"></i> New Complaint
+        </a>
+      </div>
+
+      <!-- Filters -->
+      <div class="card filter-card">
+        <div class="card-body">
+          <form method="GET" action="{{ url_for('my_complaints') }}" class="filter-form" id="filterForm">
+            <div class="filter-group">
+              <label><i class="fas fa-tasks"></i> Status</label>
+              <select name="status" onchange="this.form.submit()">
+                <option value="">All Statuses</option>
+                {% for s in statuses %}
+                  <option value="{{ s }}" {{ 'selected' if selected_status == s }}>{{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="filter-group">
+              <label><i class="fas fa-exclamation-circle"></i> Priority</label>
+              <select name="priority" onchange="this.form.submit()">
+                <option value="">All Priorities</option>
+                {% for p in ['Low','Medium','High','Critical'] %}
+                  <option value="{{ p }}" {{ 'selected' if selected_priority == p }}>{{ p }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            {% if selected_status or selected_priority %}
+              <a href="{{ url_for('my_complaints') }}" class="btn-outline-sm clear-filter">
+                <i class="fas fa-times"></i> Clear
+              </a>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+
+      <!-- Complaints Grid -->
+      {% if complaints %}
+        <div class="complaints-grid">
+          {% for c in complaints %}
+          <div class="complaint-card complaint-card-{{ c.priority.lower() }}">
+            <div class="cc-header">
+              <span class="priority-badge priority-{{ c.priority.lower() }}">
+                <i class="fas fa-{{ 'fire' if c.priority == 'Critical' else 'exclamation-triangle' if c.priority == 'High' else 'minus-circle' if c.priority == 'Medium' else 'info-circle' }}"></i>
+                {{ c.priority }}
+              </span>
+              <span class="status-badge status-{{ c.status.lower().replace(' ','-') }}">{{ c.status }}</span>
+            </div>
+            <h4 class="cc-title">{{ c.title[:70] }}{% if c.title|length > 70 %}…{% endif %}</h4>
+            <p class="cc-desc">{{ c.description[:100] }}{% if c.description|length > 100 %}…{% endif %}</p>
+            <div class="cc-meta">
+              <span><i class="fas fa-tag"></i> {{ c.category }}</span>
+              <span><i class="fas fa-calendar"></i> {{ c.created_at[:10] }}</span>
+            </div>
+            <div class="cc-score">
+              <span>AI Score</span>
+              <div class="score-bar-sm">
+                <div class="score-fill-sm priority-bg-{{ c.priority.lower() }}" style="width:{{ c.priority_score }}%"></div>
+              </div>
+              <strong>{{ c.priority_score }}/100</strong>
+            </div>
+            <div class="cc-footer">
+              <a href="{{ url_for('complaint_details', complaint_id=c.id) }}" class="btn-outline-sm">
+                <i class="fas fa-eye"></i> View Details
+              </a>
+              <span class="cc-id">#{{ c.id }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="card">
+          <div class="card-body">
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <h4>No complaints found</h4>
+              <p>{% if selected_status or selected_priority %}Try clearing the filters.{% else %}You haven't submitted any complaints yet.{% endif %}</p>
+              <a href="{{ url_for('complaint_new') }}" class="btn-primary">Submit Your First Complaint</a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

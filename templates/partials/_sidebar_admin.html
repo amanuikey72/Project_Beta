@@ -1,0 +1,49 @@
+<!-- templates/partials/_sidebar_admin.html -->
+<aside class="sidebar sidebar-admin" id="sidebar">
+  <div class="sidebar-header">
+    <a href="{{ url_for('index') }}" class="sidebar-brand">
+      <i class="fas fa-brain"></i>
+      <span>SmartComplaint<span class="brand-ai-s">AI</span></span>
+    </a>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="sidebar-avatar admin-avatar"><i class="fas fa-shield-alt"></i></div>
+    <div class="sidebar-user-info">
+      <strong>{{ session.user_name }}</strong>
+      <small class="admin-role-badge">Administrator</small>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <p class="nav-section-label">Main</p>
+    <ul>
+      <li class="{{ 'active' if request.endpoint == 'admin_dashboard' else '' }}">
+        <a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      </li>
+      <li class="{{ 'active' if request.endpoint == 'admin_complaints' else '' }}">
+        <a href="{{ url_for('admin_complaints') }}"><i class="fas fa-clipboard-list"></i> All Complaints</a>
+      </li>
+      <li class="{{ 'active' if request.endpoint == 'admin_complaints' and request.args.get('priority') == 'Critical' else '' }}">
+        <a href="{{ url_for('admin_complaints') }}?priority=Critical"><i class="fas fa-fire"></i> Critical</a>
+      </li>
+    </ul>
+    <p class="nav-section-label">Management</p>
+    <ul>
+      <li class="{{ 'active' if request.endpoint == 'admin_users' else '' }}">
+        <a href="{{ url_for('admin_users') }}"><i class="fas fa-users"></i> Users</a>
+      </li>
+      <li>
+        <a href="{{ url_for('admin_dashboard') }}#analytics"><i class="fas fa-chart-bar"></i> Analytics</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="{{ url_for('logout') }}" class="sidebar-logout">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>

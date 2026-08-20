@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Error — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="auth-body">
+  <div class="error-page">
+    <div class="error-icon">
+      <i class="fas fa-{{ 'search' if code == 404 else 'exclamation-triangle' }}"></i>
+    </div>
+    <h1>{{ code }}</h1>
+    <h2>{{ message }}</h2>
+    <p>Sorry, something went wrong on our end.</p>
+    <a href="{{ url_for('index') }}" class="btn-primary">
+      <i class="fas fa-home"></i> Go Home
+    </a>
+  </div>
+</body>
+</html>

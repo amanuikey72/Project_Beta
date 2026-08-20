@@ -1,0 +1,42 @@
+<!-- templates/partials/_sidebar_user.html -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <a href="{{ url_for('index') }}" class="sidebar-brand">
+      <i class="fas fa-brain"></i>
+      <span>SmartComplaint<span class="brand-ai-s">AI</span></span>
+    </a>
+    <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="sidebar-user">
+    <div class="sidebar-avatar">{{ session.user_name[0].upper() }}</div>
+    <div class="sidebar-user-info">
+      <strong>{{ session.user_name }}</strong>
+      <small>Citizen</small>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      <li class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">
+        <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Dashboard</a>
+      </li>
+      <li class="{{ 'active' if request.endpoint == 'complaint_new' else '' }}">
+        <a href="{{ url_for('complaint_new') }}"><i class="fas fa-plus-circle"></i> Submit Complaint</a>
+      </li>
+      <li class="{{ 'active' if request.endpoint == 'my_complaints' else '' }}">
+        <a href="{{ url_for('my_complaints') }}"><i class="fas fa-list-alt"></i> My Complaints</a>
+      </li>
+      <li class="{{ 'active' if request.endpoint == 'my_complaints' else '' }}">
+        <a href="{{ url_for('my_complaints') }}?status=Pending"><i class="fas fa-clock"></i> Track Status</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a href="{{ url_for('logout') }}" class="sidebar-logout">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>

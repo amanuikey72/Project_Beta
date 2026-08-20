@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="auth-body">
+  <div class="auth-wrapper">
+    <!-- Left Panel -->
+    <div class="auth-left">
+      <a class="brand" href="{{ url_for('index') }}">
+        <i class="fas fa-brain"></i>
+        <span>SmartComplaint<span class="brand-ai">AI</span></span>
+      </a>
+      <h2>AI-Powered Civic<br/>Complaint Management</h2>
+      <p>Critical complaints are automatically detected and escalated using our intelligent NLP engine.</p>
+      <div class="auth-stats">
+        <div class="a-stat"><i class="fas fa-fire"></i> Critical auto-detected</div>
+        <div class="a-stat"><i class="fas fa-chart-line"></i> 0–100 Priority Score</div>
+        <div class="a-stat"><i class="fas fa-shield-alt"></i> Secure & Private</div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="auth-right">
+      <div class="auth-card">
+        <div class="auth-card-header">
+          <h3>Sign In</h3>
+          <p>Access your complaint dashboard</p>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'info-circle' }}"></i>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm" novalidate>
+          <div class="form-group">
+            <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email"/>
+            <span class="field-error" id="emailError"></span>
+          </div>
+          <div class="form-group">
+            <label for="password"><i class="fas fa-lock"></i> Password</label>
+            <div class="input-icon-wrap">
+              <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password"/>
+              <button type="button" class="toggle-pw" onclick="togglePw('password', this)">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <span class="field-error" id="pwError"></span>
+          </div>
+          <button type="submit" class="btn-primary btn-full" id="loginBtn">
+            <i class="fas fa-sign-in-alt"></i> Sign In
+          </button>
+        </form>
+
+        <div class="auth-divider"><span>or</span></div>
+
+        <div class="auth-footer">
+          <p>Don't have an account? <a href="{{ url_for('register') }}">Create one free</a></p>
+          <hr class="auth-sep"/>
+          <p class="admin-hint">
+            <i class="fas fa-shield-alt"></i>
+            Admin? Use your admin credentials to login.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

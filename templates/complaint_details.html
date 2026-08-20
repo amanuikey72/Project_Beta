@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complaint #{{ complaint.id }} — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="app-body">
+
+  {% if is_admin %}
+    {% include 'partials/_sidebar_admin.html' %}
+  {% else %}
+    {% include 'partials/_sidebar_user.html' %}
+  {% endif %}
+
+  <main class="app-main">
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-right">
+        <div class="user-avatar-small">{{ session.user_name[0].upper() }}</div>
+        <span class="topbar-name">{{ session.user_name }}</span>
+      </div>
+    </header>
+
+    <div class="page-content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+          <div class="alert alert-{{ category }}"><i class="fas fa-info-circle"></i> {{ message|safe }}</div>
+        {% endfor %}{% endif %}
+      {% endwith %}
+
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        {% if is_admin %}
+          <a href="{{ url_for('admin_complaints') }}">All Complaints</a>
+        {% else %}
+          <a href="{{ url_for('my_complaints') }}">My Complaints</a>
+        {% endif %}
+        <i class="fas fa-chevron-right"></i>
+        <span>Complaint #{{ complaint.id }}</span>
+      </div>
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">{{ complaint.title }}</h1>
+          <div class="detail-badges">
+            <span class="priority-badge priority-{{ complaint.priority.lower() }}">
+              <i class="fas fa-{{ 'fire' if complaint.priority == 'Critical' else 'exclamation-triangle' if complaint.priority == 'High' else 'minus-circle' if complaint.priority == 'Medium' else 'info-circle' }}"></i>
+              {{ complaint.priority }} Priority
+            </span>
+            <span class="status-badge status-{{ complaint.status.lower().replace(' ','-') }}">{{ complaint.status }}</span>
+            <span class="cat-badge"><i class="fas fa-tag"></i> {{ complaint.category }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-layout">
+        <!-- Left: Details -->
+        <div class="detail-main">
+          <!-- AI Score Card -->
+          <div class="card score-card score-card-{{ complaint.priority.lower() }}">
+            <div class="score-card-body">
+              <div class="score-icon"><i class="fas fa-robot"></i></div>
+              <div class="score-details">
+                <h4>AI Priority Analysis</h4>
+                <div class="score-big">
+                  <div class="score-bar-big">
+                    <div class="score-fill-big priority-bg-{{ complaint.priority.lower() }}"
+                         style="width:{{ complaint.priority_score }}%"
+                         data-score="{{ complaint.priority_score }}"></div>
+                  </div>
+                  <span class="score-num-big">{{ complaint.priority_score }}</span>
+                  <span class="score-total">/100</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description Card -->
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-align-left"></i> Description</h3></div>
+            <div class="card-body">
+              <p class="complaint-description">{{ complaint.description }}</p>
+            </div>
+          </div>
+
+          <!-- Metadata -->
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-info-circle"></i> Complaint Details</h3></div>
+            <div class="card-body">
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Complaint ID</label>
+                  <value>#{{ complaint.id }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Category</label>
+                  <value>{{ complaint.category }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Priority</label>
+                  <value><span class="priority-badge priority-{{ complaint.priority.lower() }}">{{ complaint.priority }}</span></value>
+                </div>
+                <div class="detail-item">
+                  <label>AI Score</label>
+                  <value>{{ complaint.priority_score }} / 100</value>
+                </div>
+                <div class="detail-item">
+                  <label>Status</label>
+                  <value><span class="status-badge status-{{ complaint.status.lower().replace(' ','-') }}">{{ complaint.status }}</span></value>
+                </div>
+                <div class="detail-item">
+                  <label>Submitted By</label>
+                  <value>{{ complaint.user_name }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Email</label>
+                  <value>{{ complaint.user_email }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Submitted On</label>
+                  <value>{{ complaint.created_at[:16].replace('T', ' ') }}</value>
+                </div>
+                <div class="detail-item">
+                  <label>Last Updated</label>
+                  <value>{{ complaint.updated_at[:16].replace('T', ' ') }}</value>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="detail-sidebar">
+
+          <!-- Status Timeline -->
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-stream"></i> Status Timeline</h3></div>
+            <div class="card-body">
+              <div class="timeline">
+                <div class="tl-item {{ 'done' if complaint.status in ['Pending','In Progress','Resolved','Rejected'] }}">
+                  <div class="tl-dot"><i class="fas fa-check"></i></div>
+                  <div class="tl-content"><strong>Submitted</strong><small>Complaint received</small></div>
+                </div>
+                <div class="tl-item {{ 'done' if complaint.status in ['In Progress','Resolved'] }} {{ 'rejected' if complaint.status == 'Rejected' }}">
+                  <div class="tl-dot"><i class="fas fa-{{ 'times' if complaint.status == 'Rejected' else 'cog' }}"></i></div>
+                  <div class="tl-content"><strong>{{ 'Rejected' if complaint.status == 'Rejected' else 'In Progress' }}</strong><small>Under review</small></div>
+                </div>
+                <div class="tl-item {{ 'done' if complaint.status == 'Resolved' }}">
+                  <div class="tl-dot"><i class="fas fa-check-circle"></i></div>
+                  <div class="tl-content"><strong>Resolved</strong><small>Issue closed</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin: Update Status -->
+          {% if is_admin %}
+          <div class="card">
+            <div class="card-header"><h3><i class="fas fa-edit"></i> Update Status</h3></div>
+            <div class="card-body">
+              <form method="POST" action="{{ url_for('admin_update_status', complaint_id=complaint.id) }}">
+                <div class="form-group">
+                  <select name="status" class="status-select">
+                    {% for s in statuses %}
+                      <option value="{{ s }}" {{ 'selected' if complaint.status == s }}>{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <button type="submit" class="btn-primary btn-full">
+                  <i class="fas fa-save"></i> Update Status
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Admin: Delete -->
+          <div class="card danger-card">
+            <div class="card-header"><h3><i class="fas fa-trash-alt"></i> Danger Zone</h3></div>
+            <div class="card-body">
+              <p>Permanently delete this complaint. This action cannot be undone.</p>
+              <form method="POST" action="{{ url_for('admin_delete_complaint', complaint_id=complaint.id) }}"
+                    onsubmit="return confirm('Are you sure you want to delete complaint #{{ complaint.id }}? This cannot be undone.')">
+                <button type="submit" class="btn-danger btn-full">
+                  <i class="fas fa-trash-alt"></i> Delete Complaint
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Back Button -->
+          <a href="{{ url_for('admin_complaints') if is_admin else url_for('my_complaints') }}" class="btn-outline btn-full">
+            <i class="fas fa-arrow-left"></i> Back to List
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
