@@ -94,9 +94,9 @@ CATEGORY_KEYWORDS = {
         "chemical", "injury", "injured", "bleeding", "unconscious"
     ],
     "Electricity": [
-        "electric", "electricity", "power", "light", "transformer",
-        "short circuit", "blackout", "outage", "voltage", "wire",
-        "bulb", "streetlight", "generator", "meter"
+        "electric", "electricity", "power", "light", "street light", "streetlight", "street lights",
+        "transformer", "short circuit", "blackout", "outage", "voltage", "wire",
+        "bulb", "generator", "meter"
     ],
     "Water": [
         "water", "pipe", "leak", "sewage", "drainage", "flood",
@@ -235,7 +235,7 @@ def predict_priority(title: str, description: str) -> dict:
 
 def _detect_category(text: str, matched_safety: dict) -> str:
     """
-    Determine the most likely category based on keyword frequency.
+    Determine the most likely category based on keyword frequency and weight.
 
     Parameters
     ----------
@@ -248,12 +248,18 @@ def _detect_category(text: str, matched_safety: dict) -> str:
     """
     scores = defaultdict(int)
 
+    # Use matched safety score if significant
+    if matched_safety.get("Safety", 0) >= 30:
+        scores["Safety"] += matched_safety["Safety"]
+
     for category, keywords in CATEGORY_KEYWORDS.items():
         if category == "General":
             continue
         for kw in keywords:
             if kw in text:
-                scores[category] += 1
+                # Give higher weight to multi-word matches
+                weight = 3 if ' ' in kw else 1
+                scores[category] += weight
 
     if not scores:
         return "General"

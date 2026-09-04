@@ -37,6 +37,25 @@ CATEGORIES = [
 # Valid status transitions
 VALID_STATUSES = ["Pending", "In Progress", "Resolved", "Rejected"]
 
+# Run database setup on module load
+def setup_app():
+    init_db()
+    admin_email = 'admin@smartcomplaint.com'
+    if not get_user_by_email(admin_email):
+        from werkzeug.security import generate_password_hash as gph
+        create_user(
+            name            = 'Administrator',
+            email           = admin_email,
+            hashed_password = gph('Admin@1234'),
+            role            = 'admin'
+        )
+
+try:
+    setup_app()
+except Exception as e:
+    print(f"Startup setup warning: {e}")
+
+
 # ================================================================== #
 #  DECORATORS
 # ================================================================== #
@@ -425,7 +444,7 @@ def server_error(e):
 if __name__ == '__main__':
     # Initialize database tables
     init_db()
-    print("\n✅  Database initialized successfully.")
+    print("\n[OK] Database initialized successfully.")
 
     # Create default admin account if it doesn't exist
     admin_email = 'admin@smartcomplaint.com'
@@ -437,8 +456,8 @@ if __name__ == '__main__':
             hashed_password = gph('Admin@1234'),
             role            = 'admin'
         )
-        print("✅  Default admin account created.")
-        print("    Email    : admin@smartcomplaint.com")
-        print("    Password : Admin@1234\n")
+        print("[OK] Default admin account created.")
+        print("     Email    : admin@smartcomplaint.com")
+        print("     Password : Admin@1234\n")
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='127.0.0.1', port=5000)

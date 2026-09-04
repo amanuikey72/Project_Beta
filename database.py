@@ -22,7 +22,7 @@ def get_connection():
 
 
 def init_db():
-    """Initialize database tables if they don't already exist."""
+    """Initialize database tables and indexes if they don't already exist."""
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -59,7 +59,56 @@ def init_db():
         )
     """)
 
+    # Create Indexes for high performance
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_complaints_user ON complaints(user_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_complaints_score ON complaints(priority_score DESC)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_complaints_status ON complaints(status)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_complaints_category ON complaints(category)")
+
     conn.commit()
+    conn.close()
+    seed_sample_data()
+
+
+def seed_sample_data():
+    """Seed initial sample users and complaints if database is empty."""
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT COUNT(*) FROM complaints")
+    count = cursor.fetchone()[0]
+
+    if count == 0:
+        from werkzeug.security import generate_password_hash
+        # Create a sample citizen user if not exists
+        cursor.execute("SELECT id FROM users WHERE email = 'user@example.com'")
+        user_row = cursor.fetchone()
+        if not user_row:
+            cursor.execute(
+                "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
+                ('Rahul Sharma', 'user@example.com', generate_password_hash('User@1234'), 'user')
+            )
+            user_id = cursor.lastrowid
+        else:
+            user_id = user_row['id']
+
+        samples = [
+            ("Gas Leakage in Residential Complex", "There is a severe gas leakage near Building B. Strong smell of LPG and people are facing breathing difficulty. Please send emergency team immediately!", "Safety", "Critical", 98, "Pending"),
+            ("Major High Voltage Wire Fallen on Main Road", "A high voltage electric wire has snapped and fallen near the public school entrance. Severe danger of electrocution for kids and commuters.", "Electricity", "Critical", 92, "In Progress"),
+            ("Drinking Water Pipeline Contaminated with Sewage", "Black dirty water is coming out of tap supply since morning. Sewage leak is mixing with main water line in Block 4.", "Water", "High", 78, "Pending"),
+            ("Pothole near Sector 5 Traffic Light", "Huge pothole causing traffic jams and minor bike slippages during rain. Needs road resurfacing.", "Roads", "Medium", 48, "In Progress"),
+            ("Garbage Overflowing in Ward 12", "Community dustbin is overflowing for 4 days. Bad odor and pest infestation growing.", "Sanitation", "Medium", 42, "Resolved"),
+            ("Streetlight Defective on 3rd Cross Street", "Street light bulb is flickering and dark at night near the corner.", "Electricity", "Low", 22, "Resolved"),
+            ("Request for Additional Bench in Community Park", "Elderly residents request 2 extra wooden benches in the main walking area of Green Park.", "Environment", "Low", 15, "Pending"),
+        ]
+
+        for title, desc, cat, prio, score, status in samples:
+            cursor.execute("""
+                INSERT INTO complaints (user_id, title, description, category, priority, priority_score, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (user_id, title, desc, cat, prio, score, status))
+
+        conn.commit()
     conn.close()
 
 
