@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Complaint — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user/user-style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="user-app">
+    <!-- User Sidebar -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div class="user-sidebar-brand">
+          <i class="fas fa-brain"></i>
+          SmartComplaint<span>AI</span>
+        </div>
+      </div>
+      <nav class="user-sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="user-nav-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="{{ url_for('complaint_new') }}" class="user-nav-item active">
+          <i class="fas fa-plus-circle"></i>
+          Submit Complaint
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item">
+          <i class="fas fa-list-alt"></i>
+          My Complaints
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item">
+          <i class="fas fa-search-location"></i>
+          Track Complaint
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-bell"></i>
+          Notifications
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-question-circle"></i>
+          Help & Support
+        </a>
+      </nav>
+      <div class="user-sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="user-nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="user-sidebar-overlay" id="userSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="user-main">
+      <!-- Topbar -->
+      <header class="user-topbar">
+        <button class="user-menu-toggle" id="userMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-topbar-right">
+          <div class="user-profile">
+            <div class="user-avatar">{{ session.user_name[0].upper() }}</div>
+            <div>
+              <div class="user-name">{{ session.user_name }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Citizen</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="user-page-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="user-alert user-alert-{{ 'success' if category == 'success' else 'error' if category == 'danger' else 'warning' if category == 'warning' else 'info' }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div style="margin-bottom: 32px;">
+          <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+            Submit New Complaint
+          </h1>
+          <p style="color: var(--text-secondary);">Fill in the details below and our AI will prioritize your complaint automatically</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+          <!-- Complaint Form -->
+          <div class="user-card">
+            <div class="user-card-header">
+              <div class="user-card-title">
+                <i class="fas fa-edit"></i>
+                Complaint Details
+              </div>
+            </div>
+            <div class="user-card-body">
+              <form method="POST" action="{{ url_for('complaint_new') }}" id="complaintForm">
+                <div class="user-form-group">
+                  <label class="user-form-label" for="title">
+                    <i class="fas fa-heading"></i> Complaint Title *
+                  </label>
+                  <input 
+                    type="text" 
+                    id="title" 
+                    name="title" 
+                    class="user-form-input" 
+                    placeholder="Brief title describing the issue"
+                    required
+                    oninput="triggerAnalysis()"
+                  >
+                  <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; display: block;">
+                    Minimum 5 characters
+                  </small>
+                </div>
+
+                <div class="user-form-group">
+                  <label class="user-form-label" for="category">
+                    <i class="fas fa-tag"></i> Category *
+                  </label>
+                  <select id="category" name="category" class="user-form-select" required>
+                    <option value="">Select a category</option>
+                    {% for cat in categories %}
+                      <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="user-form-group">
+                  <label class="user-form-label" for="description">
+                    <i class="fas fa-align-left"></i> Description *
+                  </label>
+                  <textarea 
+                    id="description" 
+                    name="description" 
+                    class="user-form-textarea" 
+                    placeholder="Provide detailed description of the issue including location, severity, and any other relevant information"
+                    required
+                    oninput="triggerAnalysis()"
+                  ></textarea>
+                  <small style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; display: block;">
+                    Minimum 20 characters
+                  </small>
+                </div>
+
+                <button type="submit" class="btn-user-primary" style="width: 100%; justify-content: center;">
+                  <i class="fas fa-paper-plane"></i> Submit Complaint
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- AI Analysis Preview -->
+          <div class="user-card">
+            <div class="user-card-header">
+              <div class="user-card-title">
+                <i class="fas fa-brain"></i>
+                AI Analysis Preview
+              </div>
+            </div>
+            <div class="user-card-body">
+              <div id="aiResult" style="text-align: center; padding: 40px 20px;">
+                <i class="fas fa-robot" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+                <p style="color: var(--text-secondary);">Start typing to see AI analysis</p>
+              </div>
+              
+              <div id="aiResultContent" style="display: none;">
+                <div style="margin-bottom: 20px;">
+                  <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; display: block;">
+                    Predicted Priority
+                  </label>
+                  <div id="aiPriority" style="font-size: 1.4rem; font-weight: 700; color: var(--primary);"></div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                  <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; display: block;">
+                    Priority Score
+                  </label>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="flex: 1; height: 8px; background: var(--gray-200); border-radius: 10px; overflow: hidden;">
+                      <div id="aiScoreFill" style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 10px; transition: width 0.5s ease; width: 0%;"></div>
+                    </div>
+                    <span id="aiScoreNum" style="font-weight: 700; color: var(--text-primary);">0</span>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                  <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; display: block;">
+                    Suggested Category
+                  </label>
+                  <div id="aiCategory" style="font-size: 1rem; font-weight: 600; color: var(--text-primary);"></div>
+                </div>
+
+                <div id="aiTips"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('userSidebar');
+    const overlay = document.getElementById('userSidebarOverlay');
+    const toggleBtn = document.getElementById('userMenuToggle');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Auto-dismiss alerts
+    document.querySelectorAll('.user-alert').forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, max-height 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.maxHeight = '0';
+        alert.style.overflow = 'hidden';
+        setTimeout(() => alert.remove(), 500);
+      }, 5000);
+    });
+
+    // AI Analysis
+    let aiDebounceTimer = null;
+
+    function triggerAnalysis() {
+      clearTimeout(aiDebounceTimer);
+      aiDebounceTimer = setTimeout(runAiAnalysis, 600);
+    }
+
+    async function runAiAnalysis() {
+      const titleEl = document.getElementById('title');
+      const descEl = document.getElementById('description');
+      if (!titleEl || !descEl) return;
+
+      const title = titleEl.value.trim();
+      const description = descEl.value.trim();
+
+      const placeholder = document.getElementById('aiResult');
+      const content = document.getElementById('aiResultContent');
+
+      if (title.length < 3 || description.length < 10) {
+        if (placeholder) placeholder.style.display = 'block';
+        if (content) content.style.display = 'none';
+        return;
+      }
+
+      // Show loading
+      if (placeholder) {
+        placeholder.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px;"></i><p style="color: var(--text-secondary);">Analyzing complaint...</p>';
+        placeholder.style.display = 'block';
+      }
+      if (content) content.style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description }),
+        });
+
+        if (!resp.ok) throw new Error('API error');
+
+        const data = await resp.json();
+
+        const priorityColors = {
+          Critical: '#ef4444',
+          High: '#f97316',
+          Medium: '#f59e0b',
+          Low: '#10b981',
+        };
+
+        const priorityEl = document.getElementById('aiPriority');
+        const scoreNumEl = document.getElementById('aiScoreNum');
+        const scoreFillEl = document.getElementById('aiScoreFill');
+        const categoryEl = document.getElementById('aiCategory');
+        const tipsEl = document.getElementById('aiTips');
+
+        if (priorityEl) {
+          priorityEl.textContent = data.priority;
+          priorityEl.style.color = priorityColors[data.priority] || '#3b82f6';
+        }
+        if (scoreNumEl) scoreNumEl.textContent = data.score;
+        if (scoreFillEl) {
+          scoreFillEl.style.width = data.score + '%';
+          scoreFillEl.style.background = priorityColors[data.priority] || '#3b82f6';
+        }
+        if (categoryEl) categoryEl.textContent = data.category;
+
+        const tipsMap = {
+          Critical: '🚨 This is a critical emergency complaint. It will be escalated immediately.',
+          High: '⚠️ High priority — admins will be notified promptly.',
+          Medium: '📋 Medium priority. Your complaint will be reviewed in due course.',
+          Low: '📌 Low priority complaint. Provide more details if the issue is more serious.',
+        };
+        if (tipsEl) {
+          tipsEl.innerHTML = `<div class="user-alert user-alert-${data.priority === 'Critical' ? 'error' : data.priority === 'High' ? 'warning' : 'info'}" style="margin-top: 16px; margin-bottom: 0;">${tipsMap[data.priority] || ''}</div>`;
+        }
+
+        if (placeholder) placeholder.style.display = 'none';
+        if (content) content.style.display = 'block';
+
+      } catch (err) {
+        if (placeholder) {
+          placeholder.innerHTML = '<i class="fas fa-exclamation-circle" style="font-size: 2rem; color: var(--priority-critical); margin-bottom: 12px;"></i><p style="color: var(--text-secondary);">Analysis unavailable</p>';
+          placeholder.style.display = 'block';
+        }
+      }
+    }
+  </script>
+</body>
+</html>

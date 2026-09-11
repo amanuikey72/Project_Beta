@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Users — Admin — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="app-body">
+  {% include 'partials/_sidebar_admin.html' %}
+  <main class="app-main">
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-title">Users</div>
+      <div class="topbar-right">
+        <div class="user-avatar-small admin-av"><i class="fas fa-shield-alt"></i></div>
+        <span class="topbar-name">{{ session.user_name }}</span>
+      </div>
+    </header>
+    <div class="page-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title"><i class="fas fa-users"></i> Registered Users</h1>
+          <p class="page-subtitle">{{ users|length }} registered citizen{{ 's' if users|length != 1 else '' }}</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body p-0">
+          {% if users %}
+          <div class="complaint-table-wrap">
+            <table class="complaint-table admin-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Registered</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for u in users %}
+                <tr>
+                  <td>{{ u.id }}</td>
+                  <td>
+                    <div class="user-cell">
+                      <div class="mini-avatar">{{ u.name[0].upper() }}</div>
+                      <strong>{{ u.name }}</strong>
+                    </div>
+                  </td>
+                  <td>{{ u.email }}</td>
+                  <td><span class="cat-badge">{{ u.role }}</span></td>
+                  <td>{{ u.created_at[:10] }}</td>
+                  <td>
+                    <a href="{{ url_for('admin_complaints') }}?search={{ u.email }}" class="btn-table" title="View Complaints">
+                      <i class="fas fa-clipboard-list"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+            <div class="empty-state"><i class="fas fa-users"></i><h4>No users registered yet</h4></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complaint Details — SmartComplaintAI</title>
+  {% if session.get('role') == 'admin' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin-style.css') }}"/>
+  {% else %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/user/user-style.css') }}"/>
+  {% endif %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body class="{% if session.get('role') == 'admin' %}admin-app{% else %}user-app{% endif %}">
+  {% if session.get('role') == 'admin' %}
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-brand">
+          <i class="fas fa-brain"></i>
+          SmartComplaint<span>AI</span>
+        </div>
+      </div>
+      <nav class="admin-sidebar-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Main</div>
+          <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-item">
+            <i class="fas fa-home"></i>
+            Overview
+          </a>
+          <a href="{{ url_for('admin_complaints') }}" class="admin-nav-item active">
+            <i class="fas fa-inbox"></i>
+            Complaint Control Center
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-brain"></i>
+            AI Priority Engine
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Management</div>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-building"></i>
+            Department Management
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-user-tie"></i>
+            Officer Management
+          </a>
+          <a href="{{ url_for('admin_users') }}" class="admin-nav-item">
+            <i class="fas fa-users"></i>
+            Citizen Management
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Analytics</div>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-chart-bar"></i>
+            Analytics
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-tachometer-alt"></i>
+            SLA Performance
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-file-alt"></i>
+            Reports
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">System</div>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-bell"></i>
+            System Alerts
+            <span style="margin-left: auto; background: var(--critical); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem;">3</span>
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+        </div>
+      </nav>
+      <div class="admin-sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="admin-nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Topbar -->
+      <header class="admin-topbar">
+        <button class="admin-menu-toggle" id="adminMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="admin-topbar-title">Complaint Details</div>
+        <div class="admin-topbar-right">
+          <div class="admin-notifications">
+            <i class="fas fa-bell"></i>
+            <span class="admin-notification-badge">3</span>
+          </div>
+          <div class="admin-profile">
+            <div class="admin-avatar"><i class="fas fa-shield-alt"></i></div>
+            <div>
+              <div class="admin-name">{{ session.user_name }}</div>
+              <div class="admin-role">Administrator</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-page-content">
+  {% else %}
+    <!-- User Sidebar -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div class="user-sidebar-brand">
+          <i class="fas fa-brain"></i>
+          SmartComplaint<span>AI</span>
+        </div>
+      </div>
+      <nav class="user-sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="user-nav-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="{{ url_for('complaint_new') }}" class="user-nav-item">
+          <i class="fas fa-plus-circle"></i>
+          Submit Complaint
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item active">
+          <i class="fas fa-list-alt"></i>
+          My Complaints
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item">
+          <i class="fas fa-search-location"></i>
+          Track Complaint
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-bell"></i>
+          Notifications
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-question-circle"></i>
+          Help & Support
+        </a>
+      </nav>
+      <div class="user-sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="user-nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="user-sidebar-overlay" id="userSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="user-main">
+      <!-- Topbar -->
+      <header class="user-topbar">
+        <button class="user-menu-toggle" id="userMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-topbar-right">
+          <div class="user-profile">
+            <div class="user-avatar">{{ session.user_name[0].upper() }}</div>
+            <div>
+              <div class="user-name">{{ session.user_name }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Citizen</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="user-page-content">
+  {% endif %}
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="{% if session.get('role') == 'admin' %}admin-alert{% else %}user-alert{% endif %} {% if session.get('role') == 'admin' %}admin-alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' }}{% else %}user-alert-{{ 'success' if category == 'success' else 'error' if category == 'danger' else 'warning' if category == 'warning' else 'info' }}{% endif %}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+          <div>
+            <h1 style="{% if session.get('role') == 'admin' %}font-size: 1.8rem; font-weight: 800; font-family: 'Orbitron', monospace;{% else %}font-size: 1.8rem; font-weight: 700;{% endif %} color: {% if session.get('role') == 'admin' %}var(--text-primary){% else %}var(--text-primary){% endif %}; margin-bottom: 8px;">
+              Complaint #{{ complaint.id }}
+            </h1>
+            <p style="color: {% if session.get('role') == 'admin' %}var(--text-secondary){% else %}var(--text-secondary){% endif %}; font-size: 0.95rem;">Submitted on {{ complaint.created_at }}</p>
+          </div>
+          <a href="{% if session.get('role') == 'admin' %}{{ url_for('admin_complaints') }}{% else %}{{ url_for('my_complaints') }}{% endif %}" class="{% if session.get('role') == 'admin' %}btn-admin-outline{% else %}btn-user-secondary{% endif %}">
+            <i class="fas fa-arrow-left"></i> Back to List
+          </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <!-- Main Details -->
+          <div class="{% if session.get('role') == 'admin' %}admin-card{% else %}user-card{% endif %}">
+            <div class="{% if session.get('role') == 'admin' %}admin-card-header{% else %}user-card-header{% endif %}">
+              <div class="{% if session.get('role') == 'admin' %}admin-card-title{% else %}user-card-title{% endif %}">
+                <i class="fas fa-file-alt"></i>
+                Complaint Information
+              </div>
+            </div>
+            <div class="{% if session.get('role') == 'admin' %}admin-card-body{% else %}user-card-body{% endif %}">
+              <div style="margin-bottom: 24px;">
+                <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                  <i class="fas fa-heading"></i> Title
+                </label>
+                <div style="{% if session.get('role') == 'admin' %}font-size: 1.1rem; font-weight: 700; color: var(--text-primary);{% else %}font-size: 1rem; font-weight: 600; color: var(--text-primary);{% endif %}">{{ complaint.title }}</div>
+              </div>
+
+              <div style="margin-bottom: 24px;">
+                <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                  <i class="fas fa-align-left"></i> Description
+                </label>
+                <div style="{% if session.get('role') == 'admin' %}color: var(--text-primary); line-height: 1.7; background: rgba(0, 212, 255, 0.03); padding: 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);{% else %}color: var(--text-primary); line-height: 1.6; background: var(--gray-50); padding: 16px; border-radius: var(--radius-sm);{% endif %}">{{ complaint.description }}</div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div>
+                  <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                    <i class="fas fa-tag"></i> Category
+                  </label>
+                  <span class="{% if session.get('role') == 'admin' %}admin-badge{% else %}user-badge{% endif %}" style="{% if session.get('role') == 'admin' %}background: var(--blue-dim); color: var(--blue);{% else %}background: #e0f2fe; color: #0284c7;{% endif %}">{{ complaint.category }}</span>
+                </div>
+                <div>
+                  <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                    <i class="fas fa-exclamation-circle"></i> Priority
+                  </label>
+                  <span class="{% if session.get('role') == 'admin' %}admin-badge admin-badge-{{ complaint.priority.lower() }}{% else %}user-badge user-badge-{{ complaint.priority.lower() }}{% endif %}">{{ complaint.priority }}</span>
+                </div>
+                <div>
+                  <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                    <i class="fas fa-tasks"></i> Status
+                  </label>
+                  <span class="{% if session.get('role') == 'admin' %}admin-badge admin-badge-{{ complaint.status.lower().replace(' ', '-') }}{% else %}user-badge user-badge-{{ complaint.status.lower().replace(' ', '-') }}{% endif %}">{{ complaint.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Analysis -->
+          <div class="{% if session.get('role') == 'admin' %}admin-card{% else %}user-card{% endif %}">
+            <div class="{% if session.get('role') == 'admin' %}admin-card-header{% else %}user-card-header{% endif %}">
+              <div class="{% if session.get('role') == 'admin' %}admin-card-title{% else %}user-card-title{% endif %}">
+                <i class="fas fa-brain"></i>
+                AI Analysis
+              </div>
+            </div>
+            <div class="{% if session.get('role') == 'admin' %}admin-card-body{% else %}user-card-body{% endif %}">
+              <div style="margin-bottom: 20px;">
+                <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                  Priority Score
+                </label>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="flex: 1; height: 10px; background: {% if session.get('role') == 'admin' %}rgba(0, 212, 255, 0.1){% else %}var(--gray-200){% endif %}; border-radius: 10px; overflow: hidden;">
+                    <div style="height: 100%; background: {% if complaint.priority == 'Critical' %}#ef4444{% elif complaint.priority == 'High' %}#f97316{% elif complaint.priority == 'Medium' %}#f59e0b{% else %}#10b981{% endif %}; border-radius: 10px; width: {{ complaint.priority_score }}%;"></div>
+                  </div>
+                  <span style="{% if session.get('role') == 'admin' %}font-weight: 800; color: var(--text-primary); font-family: 'Orbitron', monospace; font-size: 1.2rem;{% else %}font-weight: 700; color: var(--text-primary); font-size: 1.1rem;{% endif %}">{{ complaint.priority_score }}/100</span>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                  AI Priority
+                </label>
+                <div style="{% if session.get('role') == 'admin' %}font-size: 1.4rem; font-weight: 800; color: {% if complaint.priority == 'Critical' %}var(--critical){% elif complaint.priority == 'High' %}var(--high){% elif complaint.priority == 'Medium' %}var(--medium){% else %}var(--low){% endif %}; font-family: 'Orbitron', monospace;{% else %}font-size: 1.2rem; font-weight: 700; color: {% if complaint.priority == 'Critical' %}var(--priority-critical){% elif complaint.priority == 'High' %}var(--priority-high){% elif complaint.priority == 'Medium' %}var(--priority-medium){% else %}var(--priority-low){% endif %};{% endif %}">{{ complaint.priority }}</div>
+              </div>
+
+              <div style="margin-bottom: 20px;">
+                <label style="{% if session.get('role') == 'admin' %}font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px;{% else %}font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);{% endif %} margin-bottom: 8px; display: block;">
+                  Detected Category
+                </label>
+                <div style="{% if session.get('role') == 'admin' %}font-size: 1rem; font-weight: 600; color: var(--text-primary);{% else %}font-size: 0.95rem; font-weight: 600; color: var(--text-primary);{% endif %}">{{ complaint.category }}</div>
+              </div>
+
+              {% if session.get('role') == 'admin' %}
+              <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+                <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; display: block;">
+                  <i class="fas fa-user"></i> Citizen Information
+                </label>
+                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">{{ complaint.user_name }}</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">{{ complaint.user_email }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% if session.get('role') == 'admin' %}
+        <!-- Admin Actions -->
+        <div class="admin-card" style="margin-top: 24px;">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <i class="fas fa-cog"></i>
+              Admin Actions
+            </div>
+          </div>
+          <div class="admin-card-body">
+            <form method="POST" action="{{ url_for('admin_update_status', complaint_id=complaint.id) }}" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 200px;">
+                <label class="admin-form-label">
+                  <i class="fas fa-tasks"></i> Update Status
+                </label>
+                <select name="status" class="admin-form-select">
+                  {% for status in statuses %}
+                    <option value="{{ status }}" {% if complaint.status == status %}selected{% endif %}>{{ status }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn-admin-primary">
+                <i class="fas fa-save"></i> Update Status
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar Toggle
+    {% if session.get('role') == 'admin' %}
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('adminSidebarOverlay');
+    const toggleBtn = document.getElementById('adminMenuToggle');
+    {% else %}
+    const sidebar = document.getElementById('userSidebar');
+    const overlay = document.getElementById('userSidebarOverlay');
+    const toggleBtn = document.getElementById('userMenuToggle');
+    {% endif %}
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Auto-dismiss alerts
+    document.querySelectorAll('.admin-alert, .user-alert').forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, max-height 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.maxHeight = '0';
+        alert.style.overflow = 'hidden';
+        setTimeout(() => alert.remove(), 500);
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

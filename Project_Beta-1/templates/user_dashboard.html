@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body class="app-body">
+
+  <!-- ===== SIDEBAR ===== -->
+  {% include 'partials/_sidebar_user.html' %}
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="app-main">
+    <!-- Top Bar -->
+    <header class="app-topbar">
+      <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+      <div class="topbar-right">
+        <div class="user-avatar-small">{{ session.user_name[0].upper() }}</div>
+        <span class="topbar-name">{{ session.user_name }}</span>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}"><i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'info-circle' }}"></i> {{ message|safe }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Welcome back, {{ session.user_name.split()[0] }}! 👋</h1>
+          <p class="page-subtitle">Here's an overview of your complaints</p>
+        </div>
+        <a href="{{ url_for('complaint_new') }}" class="btn-primary">
+          <i class="fas fa-plus"></i> New Complaint
+        </a>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid four-col">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-clipboard-list"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.total }}</span>
+            <span class="stat-label">Total Complaints</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.pending }}</span>
+            <span class="stat-label">Pending</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.resolved }}</span>
+            <span class="stat-label">Resolved</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-fire"></i></div>
+          <div class="stat-info">
+            <span class="stat-num">{{ stats.critical }}</span>
+            <span class="stat-label">Critical</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Complaints -->
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-history"></i> Recent Complaints</h3>
+          <a href="{{ url_for('my_complaints') }}" class="btn-outline-sm">View All</a>
+        </div>
+        <div class="card-body">
+          {% if recent %}
+            <div class="complaint-table-wrap">
+              <table class="complaint-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for c in recent %}
+                  <tr>
+                    <td>{{ c.id }}</td>
+                    <td class="title-cell">{{ c.title[:45] }}{% if c.title|length > 45 %}…{% endif %}</td>
+                    <td><span class="cat-badge">{{ c.category }}</span></td>
+                    <td><span class="priority-badge priority-{{ c.priority.lower() }}">{{ c.priority }}</span></td>
+                    <td>
+                      <div class="score-mini">
+                        <div class="score-bar-sm"><div class="score-fill-sm priority-bg-{{ c.priority.lower() }}" style="width:{{ c.priority_score }}%"></div></div>
+                        <span>{{ c.priority_score }}</span>
+                      </div>
+                    </td>
+                    <td><span class="status-badge status-{{ c.status.lower().replace(' ','-') }}">{{ c.status }}</span></td>
+                    <td>{{ c.created_at[:10] }}</td>
+                    <td><a href="{{ url_for('complaint_details', complaint_id=c.id) }}" class="btn-table">View</a></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <i class="fas fa-inbox"></i>
+              <h4>No complaints yet</h4>
+              <p>Submit your first complaint and let the AI handle prioritization.</p>
+              <a href="{{ url_for('complaint_new') }}" class="btn-primary">Submit Complaint</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-grid">
+        <a href="{{ url_for('complaint_new') }}" class="quick-action-card">
+          <i class="fas fa-plus-circle"></i>
+          <span>Submit Complaint</span>
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="quick-action-card">
+          <i class="fas fa-list-alt"></i>
+          <span>My Complaints</span>
+        </a>
+        <a href="{{ url_for('my_complaints') }}?status=Pending" class="quick-action-card">
+          <i class="fas fa-clock"></i>
+          <span>Pending</span>
+        </a>
+        <a href="{{ url_for('my_complaints') }}?status=Resolved" class="quick-action-card">
+          <i class="fas fa-check-circle"></i>
+          <span>Resolved</span>
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      background: linear-gradient(135deg, #020617 0%, #0a0f1e 50%, #020617 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      padding: 20px 0;
+    }
+
+    .register-container {
+      width: 100%;
+      max-width: 460px;
+      padding: 20px;
+    }
+
+    .register-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 20px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.1);
+    }
+
+    .register-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .register-logo {
+      font-size: 2.5rem;
+      color: #00d4ff;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.5));
+    }
+
+    .register-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .register-subtitle {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 10px;
+      background: rgba(0, 212, 255, 0.05);
+      color: #ffffff;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .form-input:focus {
+      border-color: #00d4ff;
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1), 0 0 20px rgba(0, 212, 255, 0.2);
+      background: rgba(0, 212, 255, 0.08);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #3b82f6, #00d4ff);
+      color: #020617;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    }
+
+    .register-footer {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .register-footer-text {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+    }
+
+    .register-footer-link {
+      color: #00d4ff;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .register-footer-link:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      transition: color 0.3s ease;
+    }
+
+    .back-link:hover {
+      color: #00d4ff;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-danger {
+      background: rgba(255, 45, 85, 0.1);
+      color: #ff2d55;
+      border: 1px solid rgba(255, 45, 85, 0.3);
+    }
+
+    .alert-success {
+      background: rgba(0, 230, 118, 0.1);
+      color: #00e676;
+      border: 1px solid rgba(0, 230, 118, 0.3);
+    }
+
+    .alert-warning {
+      background: rgba(255, 214, 0, 0.1);
+      color: #ffd600;
+      border: 1px solid rgba(255, 214, 0, 0.3);
+    }
+
+    .alert-info {
+      background: rgba(0, 212, 255, 0.1);
+      color: #00d4ff;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .password-strength {
+      height: 4px;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 10px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.3s ease, background 0.3s ease;
+      width: 0;
+    }
+
+    .password-strength-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 4px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <a href="{{ url_for('index') }}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+
+    <div class="register-card">
+      <div class="register-header">
+        <div class="register-logo">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h1 class="register-title">Create Citizen Account</h1>
+        <p class="register-subtitle">Join SmartComplaint AI to submit and track complaints</p>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+              {{ message|safe }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('register') }}">
+        <div class="form-group">
+          <label class="form-label" for="name">
+            <i class="fas fa-user"></i> Full Name
+          </label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-input" 
+            placeholder="Enter your full name"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">
+            <i class="fas fa-envelope"></i> Email Address
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            class="form-input" 
+            placeholder="Enter your email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">
+            <i class="fas fa-lock"></i> Password
+          </label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            class="form-input" 
+            placeholder="Create a password (min 6 characters)"
+            required
+          >
+          <div class="password-strength">
+            <div class="password-strength-bar" id="passwordStrengthBar"></div>
+          </div>
+          <span class="password-strength-label" id="passwordStrengthLabel"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm_password">
+            <i class="fas fa-check-circle"></i> Confirm Password
+          </label>
+          <input 
+            type="password" 
+            id="confirm_password" 
+            name="confirm_password" 
+            class="form-input" 
+            placeholder="Confirm your password"
+            required
+          >
+        </div>
+
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </form>
+
+      <div class="register-footer">
+        <p class="register-footer-text">
+          Already have an account? 
+          <a href="{{ url_for('login') }}" class="register-footer-link">Sign In</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password strength indicator
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.getElementById('passwordStrengthBar');
+    const strengthLabel = document.getElementById('passwordStrengthLabel');
+
+    if (passwordInput) {
+      passwordInput.addEventListener('input', () => {
+        const password = passwordInput.value;
+        let strength = 0;
+        
+        if (password.length >= 6) strength++;
+        if (password.length >= 10) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        const levels = [
+          { width: '0%', color: '', label: '' },
+          { width: '20%', color: '#ef4444', label: 'Weak' },
+          { width: '40%', color: '#f97316', label: 'Fair' },
+          { width: '60%', color: '#f59e0b', label: 'Good' },
+          { width: '80%', color: '#10b981', label: 'Strong' },
+          { width: '100%', color: '#059669', label: 'Very Strong' }
+        ];
+
+        const level = levels[Math.min(strength, 5)];
+        strengthBar.style.width = level.width;
+        strengthBar.style.background = level.color;
+        strengthLabel.textContent = password.length > 0 ? level.label : '';
+      });
+    }
+  </script>
+</body>
+</html>

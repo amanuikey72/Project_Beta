@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user/user-style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="user-app">
+    <!-- User Sidebar -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div class="user-sidebar-brand">
+          <i class="fas fa-brain"></i>
+          SmartComplaint<span>AI</span>
+        </div>
+      </div>
+      <nav class="user-sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="user-nav-item active">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="{{ url_for('complaint_new') }}" class="user-nav-item">
+          <i class="fas fa-plus-circle"></i>
+          Submit Complaint
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item">
+          <i class="fas fa-list-alt"></i>
+          My Complaints
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item">
+          <i class="fas fa-search-location"></i>
+          Track Complaint
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-bell"></i>
+          Notifications
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-question-circle"></i>
+          Help & Support
+        </a>
+      </nav>
+      <div class="user-sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="user-nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="user-sidebar-overlay" id="userSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="user-main">
+      <!-- Topbar -->
+      <header class="user-topbar">
+        <button class="user-menu-toggle" id="userMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-topbar-right">
+          <div class="user-profile">
+            <div class="user-avatar">{{ session.user_name[0].upper() }}</div>
+            <div>
+              <div class="user-name">{{ session.user_name }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Citizen</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="user-page-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="user-alert user-alert-{{ 'success' if category == 'success' else 'error' if category == 'danger' else 'warning' if category == 'warning' else 'info' }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Welcome Hero -->
+        <div class="user-welcome-hero">
+          <h1>Welcome back, {{ session.user_name.split()[0] }}! 👋</h1>
+          <p>Here's an overview of your complaints and their current status</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="user-stats-grid">
+          <div class="user-stat-card">
+            <div class="user-stat-icon blue">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="user-stat-info">
+              <div class="user-stat-number">{{ stats.total }}</div>
+              <div class="user-stat-label">Total Complaints</div>
+            </div>
+          </div>
+          <div class="user-stat-card">
+            <div class="user-stat-icon yellow">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="user-stat-info">
+              <div class="user-stat-number">{{ stats.pending }}</div>
+              <div class="user-stat-label">Pending</div>
+            </div>
+          </div>
+          <div class="user-stat-card">
+            <div class="user-stat-icon green">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="user-stat-info">
+              <div class="user-stat-number">{{ stats.resolved }}</div>
+              <div class="user-stat-label">Resolved</div>
+            </div>
+          </div>
+          <div class="user-stat-card">
+            <div class="user-stat-icon red">
+              <i class="fas fa-fire"></i>
+            </div>
+            <div class="user-stat-info">
+              <div class="user-stat-number">{{ stats.critical }}</div>
+              <div class="user-stat-label">Critical</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Complaints -->
+        <div class="user-card">
+          <div class="user-card-header">
+            <div class="user-card-title">
+              <i class="fas fa-history"></i>
+              Recent Complaints
+            </div>
+            <a href="{{ url_for('my_complaints') }}" class="btn-user-secondary">
+              View All
+            </a>
+          </div>
+          <div class="user-card-body">
+            {% if recent %}
+              <div class="user-table-container">
+                <table class="user-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Title</th>
+                      <th>Category</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for c in recent %}
+                    <tr>
+                      <td>{{ c.id }}</td>
+                      <td class="title-cell">{{ c.title[:40] }}{% if c.title|length > 40 %}…{% endif %}</td>
+                      <td><span class="user-badge" style="background: #e0f2fe; color: #0284c7;">{{ c.category }}</span></td>
+                      <td>
+                        <span class="user-badge user-badge-{{ c.priority.lower() }}">
+                          {{ c.priority }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="user-badge user-badge-{{ c.status.lower().replace(' ', '-') }}">
+                          {{ c.status }}
+                        </span>
+                      </td>
+                      <td>{{ c.created_at[:10] }}</td>
+                      <td>
+                        <a href="{{ url_for('complaint_details', complaint_id=c.id) }}" class="btn-user-primary" style="padding: 6px 12px; font-size: 0.8rem;">
+                          View
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div style="text-align: center; padding: 40px;">
+                <i class="fas fa-inbox" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+                <h3 style="color: var(--text-primary); margin-bottom: 8px;">No complaints yet</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">Submit your first complaint and let the AI handle prioritization.</p>
+                <a href="{{ url_for('complaint_new') }}" class="btn-user-primary">
+                  <i class="fas fa-plus-circle"></i> Submit Complaint
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 32px;">
+          <a href="{{ url_for('complaint_new') }}" class="user-card" style="text-decoration: none; display: block; text-align: center; padding: 24px;">
+            <i class="fas fa-plus-circle" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px;"></i>
+            <div style="font-weight: 600; color: var(--text-primary);">Submit New Complaint</div>
+          </a>
+          <a href="{{ url_for('my_complaints') }}" class="user-card" style="text-decoration: none; display: block; text-align: center; padding: 24px;">
+            <i class="fas fa-list-alt" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px;"></i>
+            <div style="font-weight: 600; color: var(--text-primary);">My Complaints</div>
+          </a>
+          <a href="{{ url_for('my_complaints') }}?status=Pending" class="user-card" style="text-decoration: none; display: block; text-align: center; padding: 24px;">
+            <i class="fas fa-clock" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px;"></i>
+            <div style="font-weight: 600; color: var(--text-primary);">Pending</div>
+          </a>
+          <a href="{{ url_for('my_complaints') }}?status=Resolved" class="user-card" style="text-decoration: none; display: block; text-align: center; padding: 24px;">
+            <i class="fas fa-check-circle" style="font-size: 2rem; color: var(--primary); margin-bottom: 12px;"></i>
+            <div style="font-weight: 600; color: var(--text-primary);">Resolved</div>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('userSidebar');
+    const overlay = document.getElementById('userSidebarOverlay');
+    const toggleBtn = document.getElementById('userMenuToggle');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Auto-dismiss alerts
+    document.querySelectorAll('.user-alert').forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, max-height 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.maxHeight = '0';
+        alert.style.overflow = 'hidden';
+        setTimeout(() => alert.remove(), 500);
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

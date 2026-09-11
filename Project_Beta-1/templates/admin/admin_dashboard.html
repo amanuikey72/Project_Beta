@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Command Center — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin/admin-style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="admin-app">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-brand">
+          <i class="fas fa-brain"></i>
+          SmartComplaint<span>AI</span>
+        </div>
+      </div>
+      <nav class="admin-sidebar-nav">
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Main</div>
+          <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-item active">
+            <i class="fas fa-home"></i>
+            Overview
+          </a>
+          <a href="{{ url_for('admin_complaints') }}" class="admin-nav-item">
+            <i class="fas fa-inbox"></i>
+            Complaint Control Center
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-brain"></i>
+            AI Priority Engine
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Management</div>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-building"></i>
+            Department Management
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-user-tie"></i>
+            Officer Management
+          </a>
+          <a href="{{ url_for('admin_users') }}" class="admin-nav-item">
+            <i class="fas fa-users"></i>
+            Citizen Management
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">Analytics</div>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-chart-bar"></i>
+            Analytics
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-tachometer-alt"></i>
+            SLA Performance
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-file-alt"></i>
+            Reports
+          </a>
+        </div>
+        
+        <div class="admin-nav-section">
+          <div class="admin-nav-section-title">System</div>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-bell"></i>
+            System Alerts
+            <span style="margin-left: auto; background: var(--critical); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.65rem;">3</span>
+          </a>
+          <a href="#" class="admin-nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+          </a>
+        </div>
+      </nav>
+      <div class="admin-sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="admin-nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Topbar -->
+      <header class="admin-topbar">
+        <button class="admin-menu-toggle" id="adminMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="admin-topbar-title">Admin Command Center</div>
+        <div class="admin-topbar-right">
+          <div class="admin-notifications">
+            <i class="fas fa-bell"></i>
+            <span class="admin-notification-badge">3</span>
+          </div>
+          <div class="admin-profile">
+            <div class="admin-avatar"><i class="fas fa-shield-alt"></i></div>
+            <div>
+              <div class="admin-name">{{ session.user_name }}</div>
+              <div class="admin-role">Administrator</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-page-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="admin-alert admin-alert-{{ 'success' if category == 'success' else 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'info' }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+          <div>
+            <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); font-family: 'Orbitron', monospace; margin-bottom: 8px;">
+              Executive Dashboard
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Real-time system overview and AI performance metrics</p>
+          </div>
+          <a href="{{ url_for('admin_complaints') }}" class="btn-admin-primary">
+            <i class="fas fa-clipboard-list"></i> View All Complaints
+          </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon blue">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="admin-stat-info">
+              <div class="admin-stat-number">{{ stats.total }}</div>
+              <div class="admin-stat-label">Total Complaints</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon yellow">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="admin-stat-info">
+              <div class="admin-stat-number">{{ stats.pending }}</div>
+              <div class="admin-stat-label">Pending</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon purple">
+              <i class="fas fa-spinner"></i>
+            </div>
+            <div class="admin-stat-info">
+              <div class="admin-stat-number">{{ stats.in_progress }}</div>
+              <div class="admin-stat-label">In Progress</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon green">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="admin-stat-info">
+              <div class="admin-stat-number">{{ stats.resolved }}</div>
+              <div class="admin-stat-label">Resolved</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon red">
+              <i class="fas fa-fire"></i>
+            </div>
+            <div class="admin-stat-info">
+              <div class="admin-stat-number">{{ stats.critical }}</div>
+              <div class="admin-stat-label">Critical</div>
+            </div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.2), rgba(255, 45, 85, 0.15)); color: var(--high); border: 1px solid var(--high-glow); box-shadow: 0 0 12px var(--high-glow);">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="admin-stat-info">
+              <div class="admin-stat-number">{{ stats.high }}</div>
+              <div class="admin-stat-label">High Priority</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="admin-charts-grid">
+          <!-- Priority Chart -->
+          <div class="admin-chart-card">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-exclamation-circle"></i> Priority Distribution</h3>
+            </div>
+            <div class="admin-card-body">
+              <div class="admin-chart-body">
+                <canvas id="priorityChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Chart -->
+          <div class="admin-chart-card">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-tasks"></i> Status Overview</h3>
+            </div>
+            <div class="admin-card-body">
+              <div class="admin-chart-body">
+                <canvas id="statusChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Chart -->
+          <div class="admin-chart-card chart-wide">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-tag"></i> Category Analysis</h3>
+            </div>
+            <div class="admin-card-body">
+              <div class="admin-chart-body">
+                <canvas id="categoryChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly Chart -->
+          <div class="admin-chart-card chart-wide">
+            <div class="admin-card-header">
+              <h3><i class="fas fa-chart-line"></i> Monthly Trend</h3>
+            </div>
+            <div class="admin-card-body">
+              <div class="admin-chart-body">
+                <canvas id="monthlyChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-quick-actions">
+          <a href="{{ url_for('admin_complaints') }}" class="admin-quick-action">
+            <i class="fas fa-clipboard-list"></i>
+            <span>All Complaints</span>
+          </a>
+          <a href="{{ url_for('admin_complaints') }}?priority=Critical" class="admin-quick-action critical-qa">
+            <i class="fas fa-fire"></i>
+            <span>Critical Cases</span>
+          </a>
+          <a href="{{ url_for('admin_complaints') }}?status=Pending" class="admin-quick-action">
+            <i class="fas fa-clock"></i>
+            <span>Pending Review</span>
+          </a>
+          <a href="{{ url_for('admin_users') }}" class="admin-quick-action">
+            <i class="fas fa-users"></i>
+            <span>User Management</span>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('adminSidebarOverlay');
+    const toggleBtn = document.getElementById('adminMenuToggle');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Auto-dismiss alerts
+    document.querySelectorAll('.admin-alert').forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, max-height 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.maxHeight = '0';
+        alert.style.overflow = 'hidden';
+        setTimeout(() => alert.remove(), 500);
+      }, 5000);
+    });
+
+    // Chart.js Configuration
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(0, 212, 255, 0.1)';
+
+    const chartDefaults = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { 
+            padding: 16, 
+            usePointStyle: true, 
+            pointStyleWidth: 10,
+            color: '#e2e8f0'
+          }
+        }
+      }
+    };
+
+    // Pass stats data from Flask to JavaScript
+    const statsData = {
+      byPriority : {{ stats.by_priority | tojson }},
+      byStatus   : {{ stats.by_status   | tojson }},
+      byCategory : {{ stats.by_category | tojson }},
+      monthly    : {
+        labels : {{ stats.monthly_labels | tojson }},
+        data   : {{ stats.monthly_data   | tojson }}
+      }
+    };
+
+    // Priority Doughnut Chart
+    const priorityCtx = document.getElementById('priorityChart');
+    if (priorityCtx) {
+      const pd = statsData.byPriority || {};
+      new Chart(priorityCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(pd),
+          datasets: [{
+            data: Object.values(pd),
+            backgroundColor: ['#ff2d55', '#ff6b00', '#ffd600', '#00e676'],
+            borderWidth: 3,
+            borderColor: '#0a0f1e',
+            hoverOffset: 6,
+          }]
+        },
+        options: {
+          ...chartDefaults,
+          cutout: '65%',
+          plugins: {
+            ...chartDefaults.plugins,
+            tooltip: {
+              callbacks: {
+                label: ctx => ` ${ctx.label}: ${ctx.parsed} complaints`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Status Doughnut Chart
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+      const sd = statsData.byStatus || {};
+      new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(sd),
+          datasets: [{
+            data: Object.values(sd),
+            backgroundColor: ['#ffd600', '#8b5cf6', '#00e676', '#ff2d55'],
+            borderWidth: 3,
+            borderColor: '#0a0f1e',
+            hoverOffset: 6,
+          }]
+        },
+        options: {
+          ...chartDefaults,
+          cutout: '65%',
+        }
+      });
+    }
+
+    // Category Bar Chart
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+      const cd = statsData.byCategory || {};
+      const cats   = Object.keys(cd);
+      const counts  = Object.values(cd);
+
+      const catColors = [
+        '#3b82f6', '#8b5cf6', '#ec4899', '#ff2d55',
+        '#ff6b00', '#f59e0b', '#10b981', '#06b6d4', '#6366f1'
+      ];
+
+      new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+          labels: cats,
+          datasets: [{
+            label: 'Complaints',
+            data: counts,
+            backgroundColor: cats.map((_, i) => catColors[i % catColors.length] + 'CC'),
+            borderColor:     cats.map((_, i) => catColors[i % catColors.length]),
+            borderWidth: 2,
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          ...chartDefaults,
+          plugins: {
+            ...chartDefaults.plugins,
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 },
+              grid: { color: 'rgba(0, 212, 255, 0.05)' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Monthly Line Chart
+    const monthlyCtx = document.getElementById('monthlyChart');
+    if (monthlyCtx) {
+      const ml = statsData.monthly || {};
+      const labels = ml.labels || [];
+      const data   = ml.data   || [];
+
+      new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Complaints Submitted',
+            data,
+            borderColor:     '#00d4ff',
+            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#00d4ff',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBorderColor: '#0a0f1e',
+            pointBorderWidth: 2,
+          }]
+        },
+        options: {
+          ...chartDefaults,
+          plugins: {
+            ...chartDefaults.plugins,
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 },
+              grid: { color: 'rgba(0, 212, 255, 0.05)' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Complaints — SmartComplaintAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user/user-style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="user-app">
+    <!-- User Sidebar -->
+    <aside class="user-sidebar" id="userSidebar">
+      <div class="user-sidebar-header">
+        <div class="user-sidebar-brand">
+          <i class="fas fa-brain"></i>
+          SmartComplaint<span>AI</span>
+        </div>
+      </div>
+      <nav class="user-sidebar-nav">
+        <a href="{{ url_for('dashboard') }}" class="user-nav-item">
+          <i class="fas fa-home"></i>
+          Dashboard
+        </a>
+        <a href="{{ url_for('complaint_new') }}" class="user-nav-item">
+          <i class="fas fa-plus-circle"></i>
+          Submit Complaint
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item active">
+          <i class="fas fa-list-alt"></i>
+          My Complaints
+        </a>
+        <a href="{{ url_for('my_complaints') }}" class="user-nav-item">
+          <i class="fas fa-search-location"></i>
+          Track Complaint
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-bell"></i>
+          Notifications
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-user"></i>
+          Profile
+        </a>
+        <a href="#" class="user-nav-item">
+          <i class="fas fa-question-circle"></i>
+          Help & Support
+        </a>
+      </nav>
+      <div class="user-sidebar-footer">
+        <a href="{{ url_for('logout') }}" class="user-nav-item">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="user-sidebar-overlay" id="userSidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="user-main">
+      <!-- Topbar -->
+      <header class="user-topbar">
+        <button class="user-menu-toggle" id="userMenuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="user-topbar-right">
+          <div class="user-profile">
+            <div class="user-avatar">{{ session.user_name[0].upper() }}</div>
+            <div>
+              <div class="user-name">{{ session.user_name }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Citizen</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="user-page-content">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="user-alert user-alert-{{ 'success' if category == 'success' else 'error' if category == 'danger' else 'warning' if category == 'warning' else 'info' }}">
+                <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'danger' else 'exclamation-triangle' if category == 'warning' else 'info-circle' }}"></i>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Page Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px;">
+          <div>
+            <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+              My Complaints
+            </h1>
+            <p style="color: var(--text-secondary);">View and track all your submitted complaints</p>
+          </div>
+          <a href="{{ url_for('complaint_new') }}" class="btn-user-primary">
+            <i class="fas fa-plus-circle"></i> New Complaint
+          </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="user-card" style="margin-bottom: 24px;">
+          <div class="user-card-body">
+            <form method="GET" action="{{ url_for('my_complaints') }}" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">
+                  <i class="fas fa-filter"></i> Filter by Status
+                </label>
+                <select name="status" class="user-form-select">
+                  <option value="">All Statuses</option>
+                  {% for status in statuses %}
+                    <option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>
+                      {{ status }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">
+                  <i class="fas fa-exclamation-circle"></i> Filter by Priority
+                </label>
+                <select name="priority" class="user-form-select">
+                  <option value="">All Priorities</option>
+                  <option value="Critical" {% if selected_priority == 'Critical' %}selected{% endif %}>Critical</option>
+                  <option value="High" {% if selected_priority == 'High' %}selected{% endif %}>High</option>
+                  <option value="Medium" {% if selected_priority == 'Medium' %}selected{% endif %}>Medium</option>
+                  <option value="Low" {% if selected_priority == 'Low' %}selected{% endif %}>Low</option>
+                </select>
+              </div>
+              <button type="submit" class="btn-user-secondary">
+                <i class="fas fa-search"></i> Apply Filters
+              </button>
+              <a href="{{ url_for('my_complaints') }}" class="btn-user-accent" style="padding: 12px 24px;">
+                <i class="fas fa-times"></i> Clear
+              </a>
+            </form>
+          </div>
+        </div>
+
+        <!-- Complaints List -->
+        {% if complaints %}
+          <div class="user-table-container">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Priority</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in complaints %}
+                <tr>
+                  <td>{{ c.id }}</td>
+                  <td class="title-cell">{{ c.title[:45] }}{% if c.title|length > 45 %}…{% endif %}</td>
+                  <td><span class="user-badge" style="background: #e0f2fe; color: #0284c7;">{{ c.category }}</span></td>
+                  <td>
+                    <span class="user-badge user-badge-{{ c.priority.lower() }}">
+                      {{ c.priority }}
+                    </span>
+                  </td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <div style="width: 50px; height: 6px; background: var(--gray-200); border-radius: 10px; overflow: hidden;">
+                        <div style="height: 100%; background: {% if c.priority == 'Critical' %}var(--priority-critical){% elif c.priority == 'High' %}var(--priority-high){% elif c.priority == 'Medium' %}var(--priority-medium){% else %}var(--priority-low){% endif %}; border-radius: 10px; width: {{ c.priority_score }}%;"></div>
+                      </div>
+                      <span style="font-weight: 600; color: var(--text-secondary); font-size: 0.85rem;">{{ c.priority_score }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="user-badge user-badge-{{ c.status.lower().replace(' ', '-') }}">
+                      {{ c.status }}
+                    </span>
+                  </td>
+                  <td>{{ c.created_at[:10] }}</td>
+                  <td>
+                    <a href="{{ url_for('complaint_details', complaint_id=c.id) }}" class="btn-user-primary" style="padding: 6px 12px; font-size: 0.8rem;">
+                      View
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="user-card" style="text-align: center; padding: 60px 40px;">
+            <i class="fas fa-inbox" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 24px;"></i>
+            <h3 style="color: var(--text-primary); margin-bottom: 12px; font-size: 1.4rem;">No complaints found</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 32px;">You haven't submitted any complaints yet, or none match your filters.</p>
+            <a href="{{ url_for('complaint_new') }}" class="btn-user-primary">
+              <i class="fas fa-plus-circle"></i> Submit Your First Complaint
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Sidebar Toggle
+    const sidebar = document.getElementById('userSidebar');
+    const overlay = document.getElementById('userSidebarOverlay');
+    const toggleBtn = document.getElementById('userMenuToggle');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+
+    // Auto-dismiss alerts
+    document.querySelectorAll('.user-alert').forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, max-height 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.maxHeight = '0';
+        alert.style.overflow = 'hidden';
+        setTimeout(() => alert.remove(), 500);
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

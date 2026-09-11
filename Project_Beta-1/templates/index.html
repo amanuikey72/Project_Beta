@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="SmartComplaint AI - Smart Complaint Prioritization System Using Artificial Intelligence. Premium AI-powered civic governance platform."/>
+  <title>SmartComplaint AI - Smart Complaint Prioritization System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    /* Landing Page Specific Styles */
+    .landing-container {
+      background: linear-gradient(135deg, #020617 0%, #0a0f1e 50%, #020617 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background Elements */
+    .floating-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #00d4ff;
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: float 15s infinite ease-in-out;
+      box-shadow: 0 0 10px #00d4ff;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+      25% { transform: translateY(-100px) translateX(50px); opacity: 0.8; }
+      50% { transform: translateY(-50px) translateX(-30px); opacity: 0.4; }
+      75% { transform: translateY(-150px) translateX(20px); opacity: 0.7; }
+    }
+
+    /* Glowing Orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.3;
+      animation: pulse 8s infinite ease-in-out;
+    }
+
+    .glow-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: #00d4ff;
+      top: 10%;
+      right: 10%;
+    }
+
+    .glow-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: #8b5cf6;
+      bottom: 20%;
+      left: 5%;
+      animation-delay: 2s;
+    }
+
+    .glow-orb-3 {
+      width: 250px;
+      height: 250px;
+      background: #00ffcc;
+      top: 50%;
+      left: 50%;
+      animation-delay: 4s;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.2); opacity: 0.5; }
+    }
+
+    /* Glassmorphism Navbar */
+    .landing-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.4s ease;
+    }
+
+    .landing-navbar.scrolled {
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+      padding: 15px 40px;
+    }
+
+    .landing-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 1px;
+    }
+
+    .landing-brand i {
+      color: #00d4ff;
+      font-size: 1.6rem;
+      filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.6));
+    }
+
+    .landing-brand span {
+      color: #00d4ff;
+      text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+    }
+
+    .landing-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .landing-nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .landing-nav-link:hover {
+      color: #00d4ff;
+      background: rgba(0, 212, 255, 0.1);
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+
+    .landing-btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .landing-btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #00d4ff);
+      color: #020617;
+      border: none;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .landing-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    }
+
+    .landing-btn-outline {
+      background: transparent;
+      color: #00d4ff;
+      border: 2px solid #00d4ff;
+    }
+
+    .landing-btn-outline:hover {
+      background: rgba(0, 212, 255, 0.1);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    /* Hero Section */
+    .landing-hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 40px 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .landing-hero-content {
+      max-width: 1200px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .landing-hero-text {
+      animation: slideUp 1s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .landing-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 212, 255, 0.1);
+      color: #00d4ff;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      animation: badgePulse 3s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(0, 212, 255, 0); }
+    }
+
+    .landing-hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .landing-hero-title .gradient-text {
+      background: linear-gradient(135deg, #00d4ff, #8b5cf6, #00ffcc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 5s ease infinite;
+      background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .landing-hero-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 600px;
+    }
+
+    .landing-hero-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Hero Visual */
+    .landing-hero-visual {
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .ai-demo-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-demo-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #00d4ff, #8b5cf6, #00ffcc);
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .ai-demo-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .ai-demo-header i {
+      color: #00d4ff;
+      font-size: 1.5rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .ai-demo-header span {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .ai-demo-content {
+      margin-bottom: 20px;
+    }
+
+    .ai-demo-complaint {
+      background: rgba(0, 212, 255, 0.05);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .ai-demo-result {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ai-demo-priority {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-demo-priority-badge {
+      background: rgba(255, 45, 85, 0.2);
+      color: #ff2d55;
+      border: 1px solid rgba(255, 45, 85, 0.4);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 0 15px rgba(255, 45, 85, 0.3);
+    }
+
+    .ai-demo-score {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ai-demo-score-bar {
+      width: 120px;
+      height: 8px;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .ai-demo-score-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff2d55, #ff6b00);
+      border-radius: 10px;
+      animation: scoreFill 2s ease-out forwards;
+      width: 0;
+    }
+
+    @keyframes scoreFill {
+      to { width: 95%; }
+    }
+
+    .ai-demo-score-number {
+      font-weight: 800;
+      color: #ffffff;
+      font-size: 1.2rem;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .ai-demo-category {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.9rem;
+    }
+
+    .ai-demo-category i {
+      color: #00d4ff;
+    }
+
+    /* Live Statistics Section */
+    .landing-stats {
+      padding: 80px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .landing-stats-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .landing-stat-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      text-align: center;
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .landing-stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .landing-stat-card:hover {
+      transform: translateY(-8px);
+      border-color: #00d4ff;
+      box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+    }
+
+    .landing-stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .landing-stat-card.critical {
+      border-color: rgba(255, 45, 85, 0.3);
+    }
+
+    .landing-stat-card.critical:hover {
+      border-color: #ff2d55;
+      box-shadow: 0 20px 40px rgba(255, 45, 85, 0.2);
+    }
+
+    .landing-stat-card.critical::before {
+      background: linear-gradient(90deg, transparent, #ff2d55, transparent);
+    }
+
+    .landing-stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 1.5rem;
+    }
+
+    .landing-stat-icon.blue {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0, 212, 255, 0.15));
+      color: #00d4ff;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+    }
+
+    .landing-stat-icon.red {
+      background: linear-gradient(135deg, rgba(255, 45, 85, 0.2), rgba(255, 107, 0, 0.15));
+      color: #ff2d55;
+      border: 1px solid rgba(255, 45, 85, 0.3);
+    }
+
+    .landing-stat-icon.green {
+      background: linear-gradient(135deg, rgba(0, 230, 118, 0.2), rgba(0, 255, 204, 0.15));
+      color: #00ffcc;
+      border: 1px solid rgba(0, 230, 118, 0.3);
+    }
+
+    .landing-stat-icon.yellow {
+      background: linear-gradient(135deg, rgba(255, 214, 0, 0.2), rgba(255, 107, 0, 0.15));
+      color: #ffd600;
+      border: 1px solid rgba(255, 214, 0, 0.3);
+    }
+
+    .landing-stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 8px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .landing-stat-label {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* How AI Works Section */
+    .landing-how-it-works {
+      padding: 100px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .landing-section-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .landing-section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 16px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .landing-section-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .landing-process-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 32px;
+      position: relative;
+    }
+
+    .landing-process-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: all 0.4s ease;
+      position: relative;
+    }
+
+    .landing-process-card:hover {
+      transform: translateY(-8px);
+      border-color: #00d4ff;
+      box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+    }
+
+    .landing-process-number {
+      position: absolute;
+      top: -16px;
+      left: 24px;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #00d4ff, #8b5cf6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #020617;
+      font-size: 1.1rem;
+      font-family: 'Orbitron', monospace;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .landing-process-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      color: #00d4ff;
+    }
+
+    .landing-process-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .landing-process-description {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.6;
+    }
+
+    /* Features Section */
+    .landing-features {
+      padding: 100px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .landing-features-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .landing-feature-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .landing-feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #00d4ff, #8b5cf6);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .landing-feature-card:hover {
+      transform: translateY(-8px) rotateX(2deg);
+      border-color: #00d4ff;
+      box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+    }
+
+    .landing-feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .landing-feature-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(139, 92, 246, 0.15));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      color: #00d4ff;
+      transition: all 0.4s ease;
+    }
+
+    .landing-feature-card:hover .landing-feature-icon {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+
+    .landing-feature-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .landing-feature-description {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.6;
+    }
+
+    /* CTA Section */
+    .landing-cta {
+      padding: 100px 40px;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .landing-cta-card {
+      max-width: 800px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 24px;
+      padding: 60px 40px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .landing-cta-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .landing-cta-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .landing-cta-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 16px;
+      font-family: 'Orbitron', monospace;
+    }
+
+    .landing-cta-subtitle {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 32px;
+    }
+
+    .landing-cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Footer */
+    .landing-footer {
+      padding: 40px;
+      text-align: center;
+      border-top: 1px solid rgba(0, 212, 255, 0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .landing-footer-brand {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: 'Orbitron', monospace;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .landing-footer-brand i {
+      color: #00d4ff;
+    }
+
+    .landing-footer-text {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .landing-footer-tech {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.8rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .landing-hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .landing-hero-visual {
+        order: -1;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .landing-hero-buttons {
+        justify-content: center;
+      }
+
+      .landing-nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .landing-navbar {
+        padding: 15px 20px;
+      }
+
+      .landing-hero {
+        padding: 100px 20px 40px;
+      }
+
+      .landing-stats,
+      .landing-how-it-works,
+      .landing-features,
+      .landing-cta {
+        padding: 60px 20px;
+      }
+
+      .landing-hero-title {
+        font-size: 2rem;
+      }
+
+      .landing-section-title {
+        font-size: 1.8rem;
+      }
+
+      .landing-stat-number {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-container">
+    <!-- Animated Background -->
+    <div class="floating-particles" id="particles"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="glow-orb glow-orb-3"></div>
+
+    <!-- Navbar -->
+    <nav class="landing-navbar" id="navbar">
+      <div class="landing-brand">
+        <i class="fas fa-brain"></i>
+        SmartComplaint<span>AI</span>
+      </div>
+      <div class="landing-nav-links">
+        <a href="#how-it-works" class="landing-nav-link">How AI Works</a>
+        <a href="#features" class="landing-nav-link">Features</a>
+        <a href="{{ url_for('index') }}#track" class="landing-nav-link">Track Complaint</a>
+        {% if session.user_id %}
+          <a href="{{ url_for('dashboard') if session.role == 'user' else url_for('admin_dashboard') }}" class="landing-btn landing-btn-primary">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
+        {% else %}
+          <a href="{{ url_for('login') }}" class="landing-btn landing-btn-outline">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </a>
+          <a href="{{ url_for('register') }}" class="landing-btn landing-btn-primary">
+            <i class="fas fa-user-plus"></i> Register Citizen
+          </a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="landing-hero">
+      <div class="landing-hero-content">
+        <div class="landing-hero-text">
+          <div class="landing-badge">
+            <i class="fas fa-microchip"></i> AI-Powered System
+          </div>
+          <h1 class="landing-hero-title">
+            Smart Complaint<br/>
+            <span class="gradient-text">Prioritization System</span><br/>
+            Using AI
+          </h1>
+          <p class="landing-hero-subtitle">
+            Empowering citizens and municipal authorities with intelligent AI-powered complaint prioritization, automated department routing, and real-time resolution tracking.
+          </p>
+          <div class="landing-hero-buttons">
+            <a href="{{ url_for('register') }}" class="landing-btn landing-btn-primary">
+              <i class="fas fa-rocket"></i> Get Started as Citizen
+            </a>
+            <a href="{{ url_for('login') }}" class="landing-btn landing-btn-outline">
+              <i class="fas fa-shield-alt"></i> Admin / User Login
+            </a>
+          </div>
+        </div>
+        <div class="landing-hero-visual">
+          <div class="ai-demo-card">
+            <div class="ai-demo-header">
+              <i class="fas fa-robot"></i>
+              <span>AI Analysis Result</span>
+            </div>
+            <div class="ai-demo-content">
+              <div class="ai-demo-complaint">
+                "There is a severe gas leakage near residential houses. People are unable to breathe. Please send emergency team immediately!"
+              </div>
+              <div class="ai-demo-result">
+                <div class="ai-demo-priority">
+                  <span class="ai-demo-priority-badge">Critical</span>
+                  <div class="ai-demo-score">
+                    <div class="ai-demo-score-bar">
+                      <div class="ai-demo-score-fill"></div>
+                    </div>
+                    <span class="ai-demo-score-number">95/100</span>
+                  </div>
+                </div>
+                <div class="ai-demo-category">
+                  <i class="fas fa-tag"></i> Category: Safety
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Statistics -->
+    <section class="landing-stats" id="stats">
+      <div class="landing-stats-grid">
+        <div class="landing-stat-card">
+          <div class="landing-stat-icon blue">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <div class="landing-stat-number" data-count="1520">0</div>
+          <div class="landing-stat-label">Total Grievances Processed</div>
+        </div>
+        <div class="landing-stat-card critical">
+          <div class="landing-stat-icon red">
+            <i class="fas fa-fire"></i>
+          </div>
+          <div class="landing-stat-number" data-count="245">0</div>
+          <div class="landing-stat-label">High Priority Identified</div>
+        </div>
+        <div class="landing-stat-card">
+          <div class="landing-stat-icon green">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="landing-stat-number" data-count="1180">0</div>
+          <div class="landing-stat-label">Resolved Complaints</div>
+        </div>
+        <div class="landing-stat-card">
+          <div class="landing-stat-icon yellow">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="landing-stat-number" data-count="850">0</div>
+          <div class="landing-stat-label">Registered Citizens</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How AI Works -->
+    <section class="landing-how-it-works" id="how-it-works">
+      <div class="landing-section-header">
+        <h2 class="landing-section-title">How AI Works</h2>
+        <p class="landing-section-subtitle">Our intelligent system processes complaints through four advanced steps</p>
+      </div>
+      <div class="landing-process-grid">
+        <div class="landing-process-card">
+          <div class="landing-process-number">01</div>
+          <div class="landing-process-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <h3 class="landing-process-title">Text & Keyword Extraction</h3>
+          <p class="landing-process-description">Advanced NLP extracts key terms and context from complaint descriptions</p>
+        </div>
+        <div class="landing-process-card">
+          <div class="landing-process-number">02</div>
+          <div class="landing-process-icon">
+            <i class="fas fa-search-plus"></i>
+          </div>
+          <h3 class="landing-process-title">Urgency & Severity Detection</h3>
+          <p class="landing-process-description">AI analyzes patterns to detect emergency indicators and severity levels</p>
+        </div>
+        <div class="landing-process-card">
+          <div class="landing-process-number">03</div>
+          <div class="landing-process-icon">
+            <i class="fas fa-calculator"></i>
+          </div>
+          <h3 class="landing-process-title">AI Priority Score (0–100)</h3>
+          <p class="landing-process-description">Complex algorithm calculates precise priority score for smart routing</p>
+        </div>
+        <div class="landing-process-card">
+          <div class="landing-process-number">04</div>
+          <div class="landing-process-icon">
+            <i class="fas fa-sitemap"></i>
+          </div>
+          <h3 class="landing-process-title">Automatic Department Routing</h3>
+          <p class="landing-process-description">Intelligent routing directs complaints to the appropriate department</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="landing-features" id="features">
+      <div class="landing-section-header">
+        <h2 class="landing-section-title">Powerful Features</h2>
+        <p class="landing-section-subtitle">Everything you need for intelligent complaint management</p>
+      </div>
+      <div class="landing-features-grid">
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3 class="landing-feature-title">AI-Driven Prioritization</h3>
+          <p class="landing-feature-description">Advanced NLP engine automatically analyzes and prioritizes complaints</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 class="landing-feature-title">Critical Life-Safety Alerts</h3>
+          <p class="landing-feature-description">Instant detection and escalation of emergency situations</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-route"></i>
+          </div>
+          <h3 class="landing-feature-title">Intelligent Department Routing</h3>
+          <p class="landing-feature-description">Smart routing ensures complaints reach the right department</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-eye"></i>
+          </div>
+          <h3 class="landing-feature-title">Visual Complaint Tracking</h3>
+          <p class="landing-feature-description">Real-time timeline tracking for complete transparency</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-bell"></i>
+          </div>
+          <h3 class="landing-feature-title">Real-Time Notifications</h3>
+          <p class="landing-feature-description">Instant alerts for status updates and resolution</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3 class="landing-feature-title">Executive Analytics</h3>
+          <p class="landing-feature-description">Comprehensive dashboards for data-driven decisions</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <h3 class="landing-feature-title">Admin Priority Override</h3>
+          <p class="landing-feature-description">Administrators can adjust AI priorities when needed</p>
+        </div>
+        <div class="landing-feature-card">
+          <div class="landing-feature-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <h3 class="landing-feature-title">SLA Performance Monitoring</h3>
+          <p class="landing-feature-description">Track resolution times and service level agreements</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="landing-cta">
+      <div class="landing-cta-card">
+        <div class="landing-cta-content">
+          <h2 class="landing-cta-title">Ready to Transform Complaint Management?</h2>
+          <p class="landing-cta-subtitle">Join the smart civic governance platform powered by artificial intelligence</p>
+          <div class="landing-cta-buttons">
+            <a href="{{ url_for('register') }}" class="landing-btn landing-btn-primary">
+              <i class="fas fa-user-plus"></i> Create Citizen Account
+            </a>
+            <a href="{{ url_for('login') }}" class="landing-btn landing-btn-outline">
+              <i class="fas fa-sign-in-alt"></i> Administrator Login
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <div class="landing-footer-brand">
+        <i class="fas fa-brain"></i> SmartComplaintAI
+      </div>
+      <p class="landing-footer-text">Smart Complaint Prioritization System Using Artificial Intelligence</p>
+      <p class="landing-footer-tech">BCA Final Year Project · Python Flask · SQLite · NLP · Chart.js</p>
+    </footer>
+  </div>
+
+  <script>
+    // Create floating particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Navbar scroll effect
+    function initNavbar() {
+      const navbar = document.getElementById('navbar');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+    }
+
+    // Count-up animation for stats
+    function animateCounters() {
+      const counters = document.querySelectorAll('.landing-stat-number');
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const counter = entry.target;
+            const target = parseInt(counter.getAttribute('data-count'));
+            const duration = 2000;
+            const step = target / (duration / 16);
+            let current = 0;
+            
+            const updateCounter = () => {
+              current += step;
+              if (current < target) {
+                counter.textContent = Math.floor(current).toLocaleString();
+                requestAnimationFrame(updateCounter);
+              } else {
+                counter.textContent = target.toLocaleString();
+              }
+            };
+            
+            updateCounter();
+            observer.unobserve(counter);
+          }
+        });
+      }, { threshold: 0.5 });
+      
+      counters.forEach(counter => observer.observe(counter));
+    }
+
+    // Smooth scroll for navigation links
+    function initSmoothScroll() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      initNavbar();
+      animateCounters();
+      initSmoothScroll();
+    });
+  </script>
+</body>
+</html>
